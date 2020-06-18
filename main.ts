@@ -83,7 +83,7 @@ class Game {
 		if (player.render_position < player.position) {
 			player.render_position += 1;
 			this.render();
-			if(player.rolls[0] <= 1){
+			if(player.rolls[0] == 1){
 				player.rolls.shift();
 				window.alert('turn end');				
 			}
@@ -131,8 +131,8 @@ let d6 = new Dice(6);
 let d12 = new Dice(12);
 let players: Player[] = [
 	new Player("Dan", '@', 1, d12),
-	new Player("Bot1",'B', 1, d6),
-	new Player("Bot2",'b', 1, d6),
+	// new Player("Bot1",'B', 1, d6),
+	// new Player("Bot2",'b', 1, d6),
 ];
 let board = new Board (100, teleports);
 let game = new Game(board, players);

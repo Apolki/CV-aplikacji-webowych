@@ -4,17 +4,16 @@
 // multiplayer (1 player + bots)
 // draw a board
 // 1d6
-var Dice = /** @class */ (function () {
-    function Dice(sides) {
+class Dice {
+    constructor(sides) {
         this.sides = sides;
     }
-    Dice.prototype.roll = function () {
+    roll() {
         return Math.floor(Math.random() * this.sides) + 1;
-    };
-    return Dice;
-}());
-var Player = /** @class */ (function () {
-    function Player(name, color, position, dice) {
+    }
+}
+class Player {
+    constructor(name, color, position, dice) {
         this.name = name;
         this.color = color;
         this.position = position;
@@ -22,65 +21,59 @@ var Player = /** @class */ (function () {
         this.rolls = new Array();
         this.render_position = position;
     }
-    Player.prototype.make_move = function () {
-        var roll = this.dice.roll();
+    make_move() {
+        let roll = this.dice.roll();
         //console.log('rolled: ' + roll + ' position: ' + this.position);
         this.rolls.push(roll);
         return this.position += roll;
-    };
-    return Player;
-}());
-var Board = /** @class */ (function () {
-    function Board(size, teleports) {
+    }
+}
+class Board {
+    constructor(size, teleports) {
         this.size = size;
         this.teleports = teleports;
     }
-    Board.prototype.apply_teleports = function (position) {
+    apply_teleports(position) {
         // player can only jump once
         // todo find & apply teleport +-
-        for (var _i = 0, _a = this.teleports; _i < _a.length; _i++) {
-            var teleport = _a[_i];
+        for (let teleport of this.teleports) {
             if (position == teleport.source) {
                 position = teleport.destination;
                 break;
             }
         }
         return position;
-    };
-    return Board;
-}());
-var Game = /** @class */ (function () {
-    function Game(board, players) {
+    }
+}
+class Game {
+    constructor(board, players) {
         this.board = board;
         this.players = players;
         this.turn_number = 0;
         this.animation_step = 1000;
     }
-    Game.prototype.draw = function () {
+    draw() {
         // console.log(JSON.stringify(this.players));
         // console.log(this.players);
-    };
-    Game.prototype.render = function () {
+    }
+    render() {
         // console.log(this);
         var s = '.'.repeat(this.board.size);
-        for (var _i = 0, _a = this.players; _i < _a.length; _i++) {
-            var player = _a[_i];
+        for (let player of this.players) {
             s = replaceCharAt(s, player.render_position - 1, player.color);
         }
         h(s);
-    };
-    Game.prototype.start_animation = function () {
-        for (var _i = 0, _a = this.players; _i < _a.length; _i++) {
-            var player = _a[_i];
+    }
+    start_animation() {
+        for (let player of this.players) {
             this.animate(player);
         }
-    };
-    Game.prototype.animate = function (player) {
-        var _this = this;
+    }
+    animate(player) {
         if (player.render_position < player.position) {
             player.render_position += 1;
             this.render();
-            if (player.rolls[0] <= 1) {
+            if (player.rolls[0] == 1) {
                 player.rolls.shift();
                 window.alert('turn end');
             }
@@ -90,11 +83,10 @@ var Game = /** @class */ (function () {
             console.log("rolls drop : " + player.name + '  ' + player.rolls);
             console.log(player.name + ' render position: ' + player.render_position);
         }
-        setTimeout(function () { _this.animate(player); }, this.animation_step);
-    };
-    Game.prototype.turn = function () {
-        for (var _i = 0, _a = this.players; _i < _a.length; _i++) {
-            var player = _a[_i];
+        setTimeout(() => { this.animate(player); }, this.animation_step);
+    }
+    turn() {
+        for (let player of this.players) {
             // get new_position
             player.make_move();
             // console.log('#' + this.turn_number + ' new position: ' + new_position);
@@ -105,20 +97,18 @@ var Game = /** @class */ (function () {
             // this.render();
         }
         this.turn_number++;
-    };
-    Game.prototype.play = function () {
-        var _this = this;
-        setTimeout(function () {
-            _this.turn();
-            _this.turn_number++;
-            if (_this.turn_number < 10) {
-                _this.play();
+    }
+    play() {
+        setTimeout(() => {
+            this.turn();
+            this.turn_number++;
+            if (this.turn_number < 10) {
+                this.play();
             }
         }, 100);
-    };
-    return Game;
-}());
-var teleports = [
+    }
+}
+let teleports = [
     { source: 11, destination: 10 },
     { source: 21, destination: 20 },
     { source: 31, destination: 30 },
@@ -126,15 +116,13 @@ var teleports = [
     { source: 51, destination: 50 },
     { source: 61, destination: 60 },
 ];
-var d6 = new Dice(6);
-var d12 = new Dice(12);
-var players = [
+let d6 = new Dice(6);
+let d12 = new Dice(12);
+let players = [
     new Player("Dan", '@', 1, d12),
-    new Player("Bot1", 'B', 1, d6),
-    new Player("Bot2", 'b', 1, d6),
 ];
-var board = new Board(100, teleports);
-var game = new Game(board, players);
+let board = new Board(100, teleports);
+let game = new Game(board, players);
 game.start_animation();
 // setTimeout(() => { game.render(); }, 0);
 function h(s) {
@@ -144,4 +132,4 @@ function replaceCharAt(s, i, c) {
     return s.substring(0, i) + c + s.substring(i + 1);
     ;
 }
-var on_click = function () { game.turn(); };
+let on_click = () => { game.turn(); };
