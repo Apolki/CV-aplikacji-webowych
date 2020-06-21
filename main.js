@@ -19,13 +19,36 @@ class Player {
         this.position = position;
         this.dice = dice;
         this.rolls = new Array();
-        this.render_position = position;
+        this.n_steps = 1;
+        this.teleporting = false;
     }
     make_move() {
         let roll = this.dice.roll();
         //console.log('rolled: ' + roll + ' position: ' + this.position);
         this.rolls.push(roll);
-        return this.position += roll;
+    }
+    step(board) {
+        console.log('step');
+        if (this.teleporting) {
+            this.position = board.apply_teleports(this.position);
+            this.teleporting = false;
+            console.log(this.name + ' was teleported to ' + this.position);
+            return true;
+        }
+        if (this.rolls.length > 0) {
+            console.log("rolls drop : " + this.name + '  ' + this.rolls);
+            this.position += this.n_steps;
+            this.rolls[0] -= 1;
+            if (this.rolls[0] == 0) {
+                this.rolls.shift();
+                if (board.on_teleport(this.position)) {
+                    this.teleporting = true;
+                }
+            }
+            console.log(this.name + ' position: ' + this.position);
+            return true;
+        }
+        return false;
     }
 }
 class Board {
@@ -44,6 +67,14 @@ class Board {
         }
         return position;
     }
+    on_teleport(position) {
+        for (let teleport of this.teleports) {
+            if (position == teleport.source) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 class Game {
     constructor(board, players) {
@@ -59,31 +90,22 @@ class Game {
     render() {
         // console.log(this);
         var s = '.'.repeat(this.board.size);
+        for (let teleport of this.board.teleports) {
+            s = replaceCharAt(s, teleport.source - 1, '>');
+            s = replaceCharAt(s, teleport.destination - 1, '<');
+        }
         for (let player of this.players) {
-            s = replaceCharAt(s, player.render_position - 1, player.color);
+            s = replaceCharAt(s, player.position - 1, player.color);
         }
         h(s);
     }
-    start_animation() {
+    animation() {
         for (let player of this.players) {
-            this.animate(player);
-        }
-    }
-    animate(player) {
-        if (player.render_position < player.position) {
-            player.render_position += 1;
-            this.render();
-            if (player.rolls[0] == 1) {
-                player.rolls.shift();
-                window.alert('turn end');
+            if (player.step(this.board)) {
+                this.render();
             }
-            else {
-                player.rolls[0] -= 1;
-            }
-            console.log("rolls drop : " + player.name + '  ' + player.rolls);
-            console.log(player.name + ' render position: ' + player.render_position);
         }
-        setTimeout(() => { this.animate(player); }, this.animation_step);
+        // setTimeout(() => { this.animation(); }, this.animation_step);
     }
     turn() {
         for (let player of this.players) {
@@ -110,20 +132,24 @@ class Game {
 }
 let teleports = [
     { source: 11, destination: 10 },
+    { source: 12, destination: 1 },
+    { source: 13, destination: 2 },
+    { source: 14, destination: 3 },
     { source: 21, destination: 20 },
     { source: 31, destination: 30 },
     { source: 41, destination: 40 },
     { source: 51, destination: 50 },
     { source: 61, destination: 60 },
 ];
+let d4 = new Dice(4);
 let d6 = new Dice(6);
 let d12 = new Dice(12);
 let players = [
-    new Player("Dan", '@', 1, d12),
+    new Player("Dan", '@', 1, d4),
 ];
 let board = new Board(100, teleports);
 let game = new Game(board, players);
-game.start_animation();
+game.animation();
 // setTimeout(() => { game.render(); }, 0);
 function h(s) {
     document.getElementById('h').innerHTML = s;
