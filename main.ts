@@ -6,7 +6,13 @@
 // draw a board
 
 
+
+
 // 1d6
+
+// import { SVG } from '@svgdotjs/svg.js'
+//var { SVG } = require('@svgdotjs/svg.js');
+
 class Dice {
 	constructor(
 		public sides: number
@@ -21,13 +27,35 @@ class Player {
 	rolls = new Array();
 	n_steps = 1;
 	teleporting = false;
+	player_move : boolean;
+	rolls_length : number;
 
 	constructor(public name: string, public color: string, public position: number, public dice: Dice) {}
 	make_move() {
 		let roll = this.dice.roll();
 		//console.log('rolled: ' + roll + ' position: ' + this.position);
 		this.rolls.push(roll); 
+		this.rolls_length = this.rolls.length;
 	}
+	
+	current_turn(): boolean{
+		if (this.rolls.length == 0){
+			return false;
+		}
+		if(this.rolls_length !== this.rolls.length){
+			
+			this.rolls_length = this.rolls.length
+			return false;
+		}
+		else{
+			return true;
+		}
+
+		
+	}
+	
+
+
 	step(board: Board): boolean {
 		console.log('step');
 		if (this.teleporting) {
@@ -36,12 +64,13 @@ class Player {
 			console.log(this.name + ' was teleported to ' + this.position);
 			return true;
 		}
-		if (this.rolls.length > 0) {
+		if (this.current_turn()) {
 			console.log("rolls drop : " + this.name + '  ' +  this.rolls);
 
 			this.position += this.n_steps;
 			this.rolls[0] -= 1;
 			if (this.rolls[0] == 0) {
+				
 				this.rolls.shift();
 				if (board.on_teleport(this.position)) {
 					this.teleporting = true;
@@ -86,37 +115,136 @@ class Board {
 }
 
 class Game {
+	
+	
 	turn_number: number;
+	player_number: number;
 	animation_step: number;
 	animation_player: Player;
+	animation_started : boolean;
+	width: number;
+	height: number;
+	padding: number;
+	svgns: string;
+	
+	prcnt : number;
+	
 	constructor(public board: Board, public players: Player[]) {
 		this.turn_number = 0;
 		this.animation_step = 1000;
+		this.player_number = 0;
+		this.svgns = "http://www.w3.org/2000/svg";
+		this.width = 40;
+		this.height = 40;
+		this.padding = 10;
+		this.prcnt = 0;
+		
 	}
-	draw() {
-		// console.log(JSON.stringify(this.players));
-		// console.log(this.players);
-	}
-	render() {
-		// console.log(this);
-		var s = '.'.repeat(this.board.size);
-		for (let teleport of this.board.teleports) {
-			s = replaceCharAt(s, teleport.source      - 1, '>');
-			s = replaceCharAt(s, teleport.destination - 1, '<');
-		}
-		for (let player of this.players) {
-			s = replaceCharAt(s, player.position - 1, player.color);
-		}
-		h(s);
-	}
-	animation() {
-		for (let player of this.players) {
-			if (player.step(this.board)) {
-				this.render();
+	draw_board() {
+		
+		for (var x = 0; x < 10; x ++) {
+			for (var y = 0; y < 10; y ++) {
+				var rect = document.createElementNS(this.svgns, 'rect');
+				var x_str: string = ((this.width+this.padding)*x).toString();
+				var y_str: string = ((this.height+this.padding)*y).toString();
+				rect.setAttributeNS(null, 'x', x_str);
+				rect.setAttributeNS(null, 'y', y_str);
+				rect.setAttributeNS(null, 'height', this.height.toString());
+				rect.setAttributeNS(null, 'width', this.width.toString());
+				rect.setAttributeNS(null, 'fill', 'grey');
+				document.getElementById('svgOne').appendChild(rect);
+	
 			}
 		}
+	
+	}
+draw_line(x1: number, y1: number, x2: number, y2: number){
+	var newLine = document.createElementNS(this.svgns, 'line');
+	let lx1 = x1; 
+	let lx2 = x2; 
+	let ly1 = y1; 
+	let ly2 = y2;
+	let startLineX = ((this.width+this.padding)*lx1 + this.width/2).toString()
+	let startLineY = ((this.height+this.padding)*ly1 + this.height/2).toString()
+	let endLineX = ((this.width+this.padding)*lx2 + this.width/2).toString()
+	let endLineY = ((this.height+this.padding)*ly2 + this.height/2).toString()
 
-		// setTimeout(() => { this.animation(); }, this.animation_step);
+	newLine.setAttributeNS(null, 'x1', startLineX);
+	newLine.setAttributeNS(null, 'y1',startLineY);
+	newLine.setAttributeNS(null, 'x2',endLineX);
+	newLine.setAttributeNS(null, 'y2', endLineY);
+	newLine.setAttributeNS(null, "stroke", "red")
+	document.getElementById("svgOne").appendChild(newLine);
+}
+draw_player(cx: number, cy: number){
+	var player = document.createElementNS(this.svgns, 'circle');
+	let x = cx;
+	let y = cy;
+	let r = 10;
+	let playerCenterX = ((this.width+this.padding)*cx + this.width/2).toString();
+	let playerCenterY = ((this.height+this.padding)*cy + this.height/2).toString();
+
+	player.setAttributeNS(null, "cx", playerCenterX);
+	player.setAttributeNS(null, "cy", playerCenterY );
+	player.setAttributeNS(null, "r", r.toString() );
+	player.setAttributeNS(null, "fill", "blue");
+
+	document.getElementById("svgOne").appendChild(player);
+}
+
+
+	render() {
+		// console.log(this);
+		// var s = '.'.repeat(this.board.size);
+		// for (let teleport of this.board.teleports) {
+		// 	s = replaceCharAt(s, teleport.source      - 1, '>');
+		// 	s = replaceCharAt(s, teleport.destination - 1, '<');
+		// }
+		// for (let player of this.players) {
+		// 	s = replaceCharAt(s, player.position - 1, player.color);
+		// }
+		// h(s);
+		game.draw_board();
+		for(let teleport of teleports){
+			let x1 = (teleport.source - 1) % 10;
+			let y1 = Math.floor((teleport.source - 1) / 10)
+			let x2 = (teleport.destination - 1) % 10;
+			let y2 = Math.floor((teleport.destination  - 1) / 10)
+			game.draw_line(x1, y1, x2, y2);
+		}
+		for (let player of this.players) {
+			let x = (player.position - 1) % 10;
+			let y = Math.floor((player.position - 1) / 10)
+				game.draw_player(x, y);
+			}
+		
+		
+
+	}
+	animation() {
+		// пытаемся походить
+		// если мы можем то ходим
+		// 	ход рендерится
+		// если нет 
+		// 	извенение индекса ходящего игрока
+		// через 1 секунду повторяем анимейшон
+		let current_player = this.players[this.player_number%this.players.length]
+		{
+			if (current_player.step(this.board)) {
+				this.render();
+				this.animation_started = true;
+			}
+			else if(this.animation_started){
+				this.player_number += 1
+				this.animation_started = false;
+			}
+		}
+		
+	
+		
+		console.log("current player: " + current_player.name);
+
+		setTimeout(() => { this.animation(); }, this.animation_step);
 	}
 	turn() {
 		for (let player of this.players) {
@@ -142,6 +270,7 @@ class Game {
 	}
 }
 
+
 let teleports: Teleport [] = [
 	{source: 11, destination: 10},
 	{source: 12, destination: 1},
@@ -157,13 +286,14 @@ let d4 = new Dice(4);
 let d6 = new Dice(6);
 let d12 = new Dice(12);
 let players: Player[] = [
-	new Player("Dan", '@', 1, d4),
-	// new Player("Bot1",'B', 1, d6),
-	// new Player("Bot2",'b', 1, d6),
+	new Player("Dan", 'red', 1, d4),
+	 new Player("Bot1",'green', 1, d6),
+	 new Player("Bot2",'blue', 1, d6),
 ];
 let board = new Board (100, teleports);
 let game = new Game(board, players);
 game.animation();
+
 // setTimeout(() => { game.render(); }, 0);
 
 function h(s: string) {
@@ -176,3 +306,10 @@ function replaceCharAt(s: string, i: number, c: string): string {
 }
 
 let on_click = () => { game.turn(); };
+
+// var draw = SVG().addTo('body').size(500, 500);
+// var field = draw.rect(50, 50).fill('#f56').move(0, 0);
+
+
+
+
