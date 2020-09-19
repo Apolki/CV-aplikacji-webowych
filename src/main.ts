@@ -1,4 +1,4 @@
-import { Color, SVG } from '@svgdotjs/svg.js';
+import { Circle, Color, SVG } from '@svgdotjs/svg.js';
 
 
 // roll dice to move
@@ -18,49 +18,50 @@ import { Color, SVG } from '@svgdotjs/svg.js';
 class Dice {
 	constructor(
 		public sides: number
-		) { }
+	) { }
 
 	roll(): number {
 		return Math.floor(Math.random() * this.sides) + 1;
 	}
+
 }
 
 class Player {
 	rolls = new Array();
 	n_steps = 1;
 	teleporting = false;
-	player_move : boolean;
-	rolls_length : number;
-
-	constructor(public name: string, public color: string, public position: number, public dice: Dice) {}
+	player_move: boolean;
+	rolls_length: number;
+	circle: Circle;
+	constructor(public name: string, public color: string, public position: number, public dice: Dice) {
+		this.circle = draw.circle(30).move(0, 0).fill({ color: this.color }).click(() => { game.turn(); });
+	}
 	make_move() {
 		let roll = this.dice.roll();
 		//console.log('rolled: ' + roll + ' position: ' + this.position);
-		this.rolls.push(roll); 
+		this.rolls.push(roll);
 		this.rolls_length = this.rolls.length;
-		this.showDice();
 	}
 
-	showDice(){
-		historyDrops.rect(50, 50).move(20, 20).fill(this.color)
-	}
-	
-	current_turn(): boolean{
-		if (this.rolls.length == 0){
+
+
+
+	current_turn(): boolean {
+		if (this.rolls.length == 0) {
 			return false;
 		}
-		if(this.rolls_length !== this.rolls.length){
-			
+		if (this.rolls_length !== this.rolls.length) {
+
 			this.rolls_length = this.rolls.length
 			return false;
 		}
-		else{
+		else {
 			return true;
 		}
 
-		
+
 	}
-	
+
 
 
 	step(board: Board): boolean {
@@ -72,17 +73,17 @@ class Player {
 			return true;
 		}
 		if (this.current_turn()) {
-			console.log("rolls drop : " + this.name + '  ' +  this.rolls);
+			console.log("rolls drop : " + this.name + '  ' + this.rolls);
 			this.position += this.n_steps;
 			this.rolls[0] -= 1;
 			if (this.rolls[0] == 0) {
-				
+
 				this.rolls.shift();
 				if (board.on_teleport(this.position)) {
 					this.teleporting = true;
 				}
-			}	
-			
+			}
+
 			console.log(this.name + ' position: ' + this.position);
 			return true;
 		}
@@ -95,8 +96,17 @@ interface Teleport {
 	destination: number;
 }
 class Board {
-	constructor(public size: number, public teleports: Teleport[]) {}
-	
+	width: number;
+	height: number;
+	padding: number;
+
+	constructor(public size: number, public teleports: Teleport[]) { 
+		this.width = 40;
+		this.height = 40;
+		this.padding = 10;
+		this.render();
+	}
+
 	apply_teleports(position: number): number {
 		// player can only jump once
 		// todo find & apply teleport +-
@@ -116,101 +126,79 @@ class Board {
 				return true;
 			}
 		}
-		return false;	
+		return false;
+	}
+
+	draw_board() {
+
+		for (var x = 0; x < 10; x++) {
+			for (var y = 0; y < 10; y++) {
+				draw.rect(this.height, this.width).move(((this.width + this.padding) * x), (this.height + this.padding) * y).fill({ color: "grey" });
+
+			}
+		}
+
+	}
+	draw_line(x1: number, y1: number, x2: number, y2: number) {
+
+		let lx1 = x1;
+		let lx2 = x2;
+		let ly1 = y1;
+		let ly2 = y2;
+		draw.line(((this.width + this.padding) * lx1 + this.width / 2), ((this.height + this.padding) * ly1 + this.height / 2), ((this.width + this.padding) * lx2 + this.width / 2), ((this.height + this.padding) * ly2 + this.height / 2)).stroke({ color: '#f06' })
+	}
+
+	render() {
+		this.draw_board();
+		for (let teleport of teleports) {
+			let x1 = (teleport.source - 1) % 10;
+			let y1 = Math.floor((teleport.source - 1) / 10)
+			let x2 = (teleport.destination - 1) % 10;
+			let y2 = Math.floor((teleport.destination - 1) / 10)
+			this.draw_line(x1, y1, x2, y2);
+		}
+	
+
+
 	}
 }
 
 class Game {
-	
-	
+
+
 	turn_number: number;
 	player_number: number;
 	animation_step: number;
 	animation_player: Player;
-	animation_started : boolean;
-	width: number;
-	height: number;
-	padding: number;
-	svgns: string;
-	prcnt : number;
+	animation_started: boolean;
 	
 	constructor(public board: Board, public players: Player[]) {
 		this.turn_number = 0;
 		this.animation_step = 1000;
 		this.player_number = 0;
-		this.width = 40;
-		this.height = 40;
-		this.padding = 10;
-		this.prcnt = 0;
 		
 	}
+
 	
-	draw_board() {
-		
-		for (var x = 0; x < 10; x ++) {
-			for (var y = 0; y < 10; y ++) {
-				draw.rect(this.height, this.width).move(((this.width+this.padding)*x), (this.height+this.padding)*y).fill({color: "grey"});
-	
-			}
-		}
-	
-	}
-draw_line(x1: number, y1: number, x2: number, y2: number){
-	
-	let lx1 = x1; 
-	let lx2 = x2; 
-	let ly1 = y1; 
-	let ly2 = y2;
-	draw.line(((this.width+this.padding)*lx1 + this.width/2), ((this.height+this.padding)*ly1 + this.height/2),((this.width+this.padding)*lx2 + this.width/2),((this.height+this.padding)*ly2 + this.height/2)).stroke({ color: '#f06'})
-}
-	draw_player(player: Player){
+	player_move(player: Player) {
 		// var figure = document.createElementNS(this.svgns, 'circle');
-		let r = 30;
 		let cx = (player.position - 1) % 10;
 		let cy = Math.floor((player.position - 1) / 10);
-		let playerCenterY = ((this.height+this.padding)*cy + this.height/4)
-		let playerCenterX = ((this.width+this.padding)*cx + this.width/4)
-		draw.circle(r).move(playerCenterX, playerCenterY).fill({color: player.color}).click( () => { game.turn(); });
+		let playerCenterY = ((board.height + board.padding) * cy + board.height / 4)
+		let playerCenterX = ((board.width + board.padding) * cx + board.width / 4)
+		player.circle.animate().move(playerCenterX, playerCenterY)
+		// figure.setAttributeNS(null, "cx", playerCenterX);
+		// figure.setAttributeNS(null, "cy", playerCenterY );
+		// figure.setAttributeNS(null, "r", r.toString() );
+		// figure.setAttributeNS(null, "fill", player.color);
 
-	// figure.setAttributeNS(null, "cx", playerCenterX);
-	// figure.setAttributeNS(null, "cy", playerCenterY );
-	// figure.setAttributeNS(null, "r", r.toString() );
-	// figure.setAttributeNS(null, "fill", player.color);
-
-	// document.getElementById("svgOne").appendChild(figure);
-
-}
-
-
-
-	render() {
-		// console.log(this);
-		// var s = '.'.repeat(this.board.size);
-		// for (let teleport of this.board.teleports) {
-		// 	s = replaceCharAt(s, teleport.source      - 1, '>');
-		// 	s = replaceCharAt(s, teleport.destination - 1, '<');
-		// }
-		// for (let player of this.players) {
-		// 	s = replaceCharAt(s, player.position - 1, player.color);
-		// }
-		// h(s);
-		game.draw_board();
-		for(let teleport of teleports){
-			let x1 = (teleport.source - 1) % 10;
-			let y1 = Math.floor((teleport.source - 1) / 10)
-			let x2 = (teleport.destination - 1) % 10;
-			let y2 = Math.floor((teleport.destination  - 1) / 10)
-			game.draw_line(x1, y1, x2, y2);
-		}
-		for (let player of this.players) {
-			
-
-				game.draw_player(player);
-			}
-		
-		
+		// document.getElementById("svgOne").appendChild(figure);
 
 	}
+
+
+
+	
 	animation() {
 		// пытаемся походить
 		// если мы можем то ходим
@@ -218,20 +206,21 @@ draw_line(x1: number, y1: number, x2: number, y2: number){
 		// если нет 
 		// 	извенение индекса ходящего игрока
 		// через 1 секунду повторяем анимейшон
-		let current_player = this.players[this.player_number%this.players.length]
+		let current_player = this.players[this.player_number % this.players.length];
 		{
 			if (current_player.step(this.board)) {
-				this.render();
+				this.player_move(current_player);
+				//this.render();
 				this.animation_started = true;
 			}
-			else if(this.animation_started){
+			else if (this.animation_started) {
 				this.player_number += 1
 				this.animation_started = false;
 			}
 		}
-		
-	
-		
+
+
+
 		console.log("current player: " + current_player.name);
 
 		setTimeout(() => { this.animation(); }, this.animation_step);
@@ -261,26 +250,27 @@ draw_line(x1: number, y1: number, x2: number, y2: number){
 }
 
 
-let teleports: Teleport [] = [
-	{source: 11, destination: 10},
-	{source: 12, destination: 1},
-	{source: 13, destination: 2},
-	{source: 14, destination: 3},
-	{source: 21, destination: 20},
-	{source: 31, destination: 30},
-	{source: 41, destination: 40},
-	{source: 51, destination: 50},
-	{source: 61, destination: 60},
+let teleports: Teleport[] = [
+	{ source: 11, destination: 10 },
+	{ source: 12, destination: 1 },
+	{ source: 13, destination: 2 },
+	{ source: 14, destination: 3 },
+	{ source: 21, destination: 20 },
+	{ source: 31, destination: 30 },
+	{ source: 41, destination: 40 },
+	{ source: 51, destination: 50 },
+	{ source: 61, destination: 60 },
 ];
+var draw = SVG().addTo('body').size(500, 500);
+let board = new Board(100, teleports);
 let d4 = new Dice(4);
 let d6 = new Dice(6);
 let d12 = new Dice(12);
 let players: Player[] = [
-	new Player("Dan", 'red', 1, d4, ),
-	 new Player("Bot1",'green', 1, d6, ),
-	 new Player("Bot2",'blue', 1, d6, ),
+	new Player("Dan", 'red', 1, d4,),
+	new Player("Bot1", 'green', 1, d6,),
+	new Player("Bot2", 'blue', 1, d6,),
 ];
-let board = new Board (100, teleports);
 let game = new Game(board, players);
 game.animation();
 
@@ -298,11 +288,9 @@ game.animation();
 let on_click = () => { game.turn(); };
 
 
-var draw = SVG().addTo('body').size(500, 500);
 var historyDrops = SVG().addTo('body').size(500, 500)
 // var draw = SVG().addTo('body').size(500, 500);
 // var field = draw.rect(50, 50).fill('#f56').move(0, 0);
-
 
 
 

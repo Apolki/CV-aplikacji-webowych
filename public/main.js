@@ -24,6 +24,7 @@ class Player {
         this.rolls = new Array();
         this.n_steps = 1;
         this.teleporting = false;
+        this.circle = draw.circle(30).move(0, 0).fill({ color: this.color }).click(() => { game.turn(); });
     }
     make_move() {
         let roll = this.dice.roll();
@@ -71,6 +72,10 @@ class Board {
     constructor(size, teleports) {
         this.size = size;
         this.teleports = teleports;
+        this.width = 40;
+        this.height = 40;
+        this.padding = 10;
+        this.render();
     }
     apply_teleports(position) {
         // player can only jump once
@@ -91,6 +96,30 @@ class Board {
         }
         return false;
     }
+    draw_board() {
+        for (var x = 0; x < 10; x++) {
+            for (var y = 0; y < 10; y++) {
+                draw.rect(this.height, this.width).move(((this.width + this.padding) * x), (this.height + this.padding) * y).fill({ color: "grey" });
+            }
+        }
+    }
+    draw_line(x1, y1, x2, y2) {
+        let lx1 = x1;
+        let lx2 = x2;
+        let ly1 = y1;
+        let ly2 = y2;
+        draw.line(((this.width + this.padding) * lx1 + this.width / 2), ((this.height + this.padding) * ly1 + this.height / 2), ((this.width + this.padding) * lx2 + this.width / 2), ((this.height + this.padding) * ly2 + this.height / 2)).stroke({ color: '#f06' });
+    }
+    render() {
+        this.draw_board();
+        for (let teleport of teleports) {
+            let x1 = (teleport.source - 1) % 10;
+            let y1 = Math.floor((teleport.source - 1) / 10);
+            let x2 = (teleport.destination - 1) % 10;
+            let y2 = Math.floor((teleport.destination - 1) / 10);
+            this.draw_line(x1, y1, x2, y2);
+        }
+    }
 }
 class Game {
     constructor(board, players) {
@@ -99,79 +128,19 @@ class Game {
         this.turn_number = 0;
         this.animation_step = 1000;
         this.player_number = 0;
-        this.svgns = "http://www.w3.org/2000/svg";
-        this.width = 40;
-        this.height = 40;
-        this.padding = 10;
-        this.prcnt = 0;
     }
-    draw_board() {
-        for (var x = 0; x < 10; x++) {
-            for (var y = 0; y < 10; y++) {
-                var rect = document.createElementNS(this.svgns, 'rect');
-                var x_str = ((this.width + this.padding) * x).toString();
-                var y_str = ((this.height + this.padding) * y).toString();
-                rect.setAttributeNS(null, 'x', x_str);
-                rect.setAttributeNS(null, 'y', y_str);
-                rect.setAttributeNS(null, 'height', this.height.toString());
-                rect.setAttributeNS(null, 'width', this.width.toString());
-                rect.setAttributeNS(null, 'fill', 'grey');
-                document.getElementById('svgOne').appendChild(rect);
-            }
-        }
-    }
-    draw_line(x1, y1, x2, y2) {
-        var newLine = document.createElementNS(this.svgns, 'line');
-        let lx1 = x1;
-        let lx2 = x2;
-        let ly1 = y1;
-        let ly2 = y2;
-        let startLineX = ((this.width + this.padding) * lx1 + this.width / 2).toString();
-        let startLineY = ((this.height + this.padding) * ly1 + this.height / 2).toString();
-        let endLineX = ((this.width + this.padding) * lx2 + this.width / 2).toString();
-        let endLineY = ((this.height + this.padding) * ly2 + this.height / 2).toString();
-        newLine.setAttributeNS(null, 'x1', startLineX);
-        newLine.setAttributeNS(null, 'y1', startLineY);
-        newLine.setAttributeNS(null, 'x2', endLineX);
-        newLine.setAttributeNS(null, 'y2', endLineY);
-        newLine.setAttributeNS(null, "stroke", "red");
-        document.getElementById("svgOne").appendChild(newLine);
-    }
-    draw_player(player) {
-        var figure = document.createElementNS(this.svgns, 'circle');
+    player_move(player) {
+        // var figure = document.createElementNS(this.svgns, 'circle');
         let cx = (player.position - 1) % 10;
         let cy = Math.floor((player.position - 1) / 10);
-        let r = 10;
-        let playerCenterX = ((this.width + this.padding) * cx + this.width / 2).toString();
-        let playerCenterY = ((this.height + this.padding) * cy + this.height / 2).toString();
-        figure.setAttributeNS(null, "cx", playerCenterX);
-        figure.setAttributeNS(null, "cy", playerCenterY);
-        figure.setAttributeNS(null, "r", r.toString());
-        figure.setAttributeNS(null, "fill", player.color);
-        document.getElementById("svgOne").appendChild(figure);
-    }
-    render() {
-        // console.log(this);
-        // var s = '.'.repeat(this.board.size);
-        // for (let teleport of this.board.teleports) {
-        // 	s = replaceCharAt(s, teleport.source      - 1, '>');
-        // 	s = replaceCharAt(s, teleport.destination - 1, '<');
-        // }
-        // for (let player of this.players) {
-        // 	s = replaceCharAt(s, player.position - 1, player.color);
-        // }
-        // h(s);
-        game.draw_board();
-        for (let teleport of teleports) {
-            let x1 = (teleport.source - 1) % 10;
-            let y1 = Math.floor((teleport.source - 1) / 10);
-            let x2 = (teleport.destination - 1) % 10;
-            let y2 = Math.floor((teleport.destination - 1) / 10);
-            game.draw_line(x1, y1, x2, y2);
-        }
-        for (let player of this.players) {
-            game.draw_player(player);
-        }
+        let playerCenterY = ((board.height + board.padding) * cy + board.height / 4);
+        let playerCenterX = ((board.width + board.padding) * cx + board.width / 4);
+        player.circle.animate().move(playerCenterX, playerCenterY);
+        // figure.setAttributeNS(null, "cx", playerCenterX);
+        // figure.setAttributeNS(null, "cy", playerCenterY );
+        // figure.setAttributeNS(null, "r", r.toString() );
+        // figure.setAttributeNS(null, "fill", player.color);
+        // document.getElementById("svgOne").appendChild(figure);
     }
     animation() {
         // пытаемся походить
@@ -183,7 +152,8 @@ class Game {
         let current_player = this.players[this.player_number % this.players.length];
         {
             if (current_player.step(this.board)) {
-                this.render();
+                this.player_move(current_player);
+                //this.render();
                 this.animation_started = true;
             }
             else if (this.animation_started) {
@@ -228,6 +198,8 @@ let teleports = [
     { source: 51, destination: 50 },
     { source: 61, destination: 60 },
 ];
+var draw = SVG().addTo('body').size(500, 500);
+let board = new Board(100, teleports);
 let d4 = new Dice(4);
 let d6 = new Dice(6);
 let d12 = new Dice(12);
@@ -236,20 +208,18 @@ let players = [
     new Player("Bot1", 'green', 1, d6),
     new Player("Bot2", 'blue', 1, d6),
 ];
-let board = new Board(100, teleports);
 let game = new Game(board, players);
 game.animation();
 // setTimeout(() => { game.render(); }, 0);
-function h(s) {
-    document.getElementById('h').innerHTML = s;
-}
-function replaceCharAt(s, i, c) {
-    return s.substring(0, i) + c + s.substring(i + 1);
-    ;
-}
+// function h(s: string) {
+// 	document.getElementById('h').innerHTML = s;
+// }
+// function replaceCharAt(s: string, i: number, c: string): string {
+// 	return s.substring(0, i) + c + s.substring(i + 1);;
+// }
 let on_click = () => { game.turn(); };
+var historyDrops = SVG().addTo('body').size(500, 500);
 // var draw = SVG().addTo('body').size(500, 500);
 // var field = draw.rect(50, 50).fill('#f56').move(0, 0);
-var draw = SVG().addTo('body').size(500, 500);
-draw.rect(50, 50).fill('#000').animate().move(100, 100).attr({ fill: '#f06' });
-draw.circle(10).move(0, 0).animate().move(0, 100);
+// draw.rect(50, 50).fill('#000').animate().move(100, 100).attr({ fill: '#f06' });
+// draw.circle(10).move(0, 0,).animate().move(0, 100);
