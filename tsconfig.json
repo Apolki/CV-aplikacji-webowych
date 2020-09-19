@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "outDir": "./public",
+    "target": "es2015"
+  },
+  "include": [
+    "src",
+    "node_modules/@svgdotjs"
+  ]
+}

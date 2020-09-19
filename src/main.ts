@@ -1,4 +1,4 @@
-import { SVG } from '@svgdotjs/svg.js';
+import { Color, SVG } from '@svgdotjs/svg.js';
 
 
 // roll dice to move
@@ -38,6 +38,11 @@ class Player {
 		//console.log('rolled: ' + roll + ' position: ' + this.position);
 		this.rolls.push(roll); 
 		this.rolls_length = this.rolls.length;
+		this.showDice();
+	}
+
+	showDice(){
+		historyDrops.rect(50, 50).move(20, 20).fill(this.color)
 	}
 	
 	current_turn(): boolean{
@@ -68,7 +73,6 @@ class Player {
 		}
 		if (this.current_turn()) {
 			console.log("rolls drop : " + this.name + '  ' +  this.rolls);
-
 			this.position += this.n_steps;
 			this.rolls[0] -= 1;
 			if (this.rolls[0] == 0) {
@@ -128,71 +132,55 @@ class Game {
 	height: number;
 	padding: number;
 	svgns: string;
-	
 	prcnt : number;
 	
 	constructor(public board: Board, public players: Player[]) {
 		this.turn_number = 0;
 		this.animation_step = 1000;
 		this.player_number = 0;
-		this.svgns = "http://www.w3.org/2000/svg";
 		this.width = 40;
 		this.height = 40;
 		this.padding = 10;
 		this.prcnt = 0;
 		
 	}
+	
 	draw_board() {
 		
 		for (var x = 0; x < 10; x ++) {
 			for (var y = 0; y < 10; y ++) {
-				var rect = document.createElementNS(this.svgns, 'rect');
-				var x_str: string = ((this.width+this.padding)*x).toString();
-				var y_str: string = ((this.height+this.padding)*y).toString();
-				rect.setAttributeNS(null, 'x', x_str);
-				rect.setAttributeNS(null, 'y', y_str);
-				rect.setAttributeNS(null, 'height', this.height.toString());
-				rect.setAttributeNS(null, 'width', this.width.toString());
-				rect.setAttributeNS(null, 'fill', 'grey');
-				document.getElementById('svgOne').appendChild(rect);
+				draw.rect(this.height, this.width).move(((this.width+this.padding)*x), (this.height+this.padding)*y).fill({color: "grey"});
 	
 			}
 		}
 	
 	}
 draw_line(x1: number, y1: number, x2: number, y2: number){
-	var newLine = document.createElementNS(this.svgns, 'line');
+	
 	let lx1 = x1; 
 	let lx2 = x2; 
 	let ly1 = y1; 
 	let ly2 = y2;
-	let startLineX = ((this.width+this.padding)*lx1 + this.width/2).toString()
-	let startLineY = ((this.height+this.padding)*ly1 + this.height/2).toString()
-	let endLineX = ((this.width+this.padding)*lx2 + this.width/2).toString()
-	let endLineY = ((this.height+this.padding)*ly2 + this.height/2).toString()
-
-	newLine.setAttributeNS(null, 'x1', startLineX);
-	newLine.setAttributeNS(null, 'y1',startLineY);
-	newLine.setAttributeNS(null, 'x2',endLineX);
-	newLine.setAttributeNS(null, 'y2', endLineY);
-	newLine.setAttributeNS(null, "stroke", "red")
-	document.getElementById("svgOne").appendChild(newLine);
+	draw.line(((this.width+this.padding)*lx1 + this.width/2), ((this.height+this.padding)*ly1 + this.height/2),((this.width+this.padding)*lx2 + this.width/2),((this.height+this.padding)*ly2 + this.height/2)).stroke({ color: '#f06'})
 }
-draw_player(player: Player){
-	var figure = document.createElementNS(this.svgns, 'circle');
-	let cx = (player.position - 1) % 10;
-	let cy = Math.floor((player.position - 1) / 10)
-	let r = 10;
-	let playerCenterX = ((this.width+this.padding)*cx + this.width/2).toString();
-	let playerCenterY = ((this.height+this.padding)*cy + this.height/2).toString();
+	draw_player(player: Player){
+		// var figure = document.createElementNS(this.svgns, 'circle');
+		let r = 30;
+		let cx = (player.position - 1) % 10;
+		let cy = Math.floor((player.position - 1) / 10);
+		let playerCenterY = ((this.height+this.padding)*cy + this.height/4)
+		let playerCenterX = ((this.width+this.padding)*cx + this.width/4)
+		draw.circle(r).move(playerCenterX, playerCenterY).fill({color: player.color}).click( () => { game.turn(); });
 
-	figure.setAttributeNS(null, "cx", playerCenterX);
-	figure.setAttributeNS(null, "cy", playerCenterY );
-	figure.setAttributeNS(null, "r", r.toString() );
-	figure.setAttributeNS(null, "fill", player.color);
+	// figure.setAttributeNS(null, "cx", playerCenterX);
+	// figure.setAttributeNS(null, "cy", playerCenterY );
+	// figure.setAttributeNS(null, "r", r.toString() );
+	// figure.setAttributeNS(null, "fill", player.color);
 
-	document.getElementById("svgOne").appendChild(figure);
+	// document.getElementById("svgOne").appendChild(figure);
+
 }
+
 
 
 	render() {
@@ -215,6 +203,8 @@ draw_player(player: Player){
 			game.draw_line(x1, y1, x2, y2);
 		}
 		for (let player of this.players) {
+			
+
 				game.draw_player(player);
 			}
 		
@@ -286,9 +276,9 @@ let d4 = new Dice(4);
 let d6 = new Dice(6);
 let d12 = new Dice(12);
 let players: Player[] = [
-	new Player("Dan", 'red', 1, d4),
-	 new Player("Bot1",'green', 1, d6),
-	 new Player("Bot2",'blue', 1, d6),
+	new Player("Dan", 'red', 1, d4, ),
+	 new Player("Bot1",'green', 1, d6, ),
+	 new Player("Bot2",'blue', 1, d6, ),
 ];
 let board = new Board (100, teleports);
 let game = new Game(board, players);
@@ -296,17 +286,20 @@ game.animation();
 
 // setTimeout(() => { game.render(); }, 0);
 
-function h(s: string) {
-	document.getElementById('h').innerHTML = s;
-}
+// function h(s: string) {
+// 	document.getElementById('h').innerHTML = s;
+// }
 
 
-function replaceCharAt(s: string, i: number, c: string): string {
-	return s.substring(0, i) + c + s.substring(i + 1);;
-}
+// function replaceCharAt(s: string, i: number, c: string): string {
+// 	return s.substring(0, i) + c + s.substring(i + 1);;
+// }
 
 let on_click = () => { game.turn(); };
 
+
+var draw = SVG().addTo('body').size(500, 500);
+var historyDrops = SVG().addTo('body').size(500, 500)
 // var draw = SVG().addTo('body').size(500, 500);
 // var field = draw.rect(50, 50).fill('#f56').move(0, 0);
 
@@ -315,6 +308,5 @@ let on_click = () => { game.turn(); };
 
 
 
-var draw = SVG().addTo('body').size(500, 500);
-draw.rect(50, 50).fill('#000').animate().move(100, 100).attr({ fill: '#f06' });
-draw.circle(10).move(0, 0,).animate().move(0, 100);
+// draw.rect(50, 50).fill('#000').animate().move(100, 100).attr({ fill: '#f06' });
+// draw.circle(10).move(0, 0,).animate().move(0, 100);
