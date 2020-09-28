@@ -14,10 +14,9 @@ let teleports = [
     { source: 61, destination: 60 },
 ];
 let board = new Board(100, teleports);
-let d4 = new Dice(1);
+let d4 = new Dice(4);
 let d6 = new Dice(6);
 let d12 = new Dice(6);
-let on_click = () => { game.turn(); };
 let players = [
     new Player("Dan", 'red', 1, d4),
     new Player("Bot1", 'green', 1, d6),

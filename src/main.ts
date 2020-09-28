@@ -18,11 +18,10 @@ import { Teleport } from './Teleport';
 ];
  let board = new Board(100, teleports);
 
-let d4 = new Dice(1);
+let d4 = new Dice(4);
 let d6 = new Dice(6);
 let d12 = new Dice(6);
 
-let on_click = () => { game.turn(); };
 
 let players: Player[] = [
 	new Player("Dan", 'red', 1, d4),

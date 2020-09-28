@@ -36,61 +36,61 @@ export class Player {
 		let circle6 = historyDrops.circle(10).move(45, 445).animate();
 		let circles = [circle1, circle2, circle3, circle4, circle5, circle6];
 		let animate_dice_1 = () => {
-			circles[0] = circles[0].animate(null, 100).move(45, 445);
-			circles[1] = circles[1].animate(null, 100).move(45, 445);
-			circles[2] = circles[2].animate(null, 100).move(45, 445);
-			circles[3] = circles[3].animate(null, 100).move(45, 445);
-			circles[4] = circles[4].animate(null, 100).move(45, 445);
-			circles[5] = circles[5].animate(null, 100).move(45, 445);
+			circles[0] = circles[0].animate(100, 0).move(45, 445);
+			circles[1] = circles[1].animate(100, 0).move(45, 445);
+			circles[2] = circles[2].animate(100, 0).move(45, 445);
+			circles[3] = circles[3].animate(100, 0).move(45, 445);
+			circles[4] = circles[4].animate(100, 0).move(45, 445);
+			circles[5] = circles[5].animate(100, 0).move(45, 445);
 		};
 
 		let animate_dice_2 = () => {
-			circles[0] = circles[0].animate(null, 100).move(20, 420);
-			circles[1] = circles[1].animate(null, 100).move(20, 420);
-			circles[2] = circles[2].animate(null, 100).move(20, 420);
-			circles[3] = circles[3].animate(null, 100).move(70, 470);
-			circles[4] = circles[4].animate(null, 100).move(70, 470);
-			circles[5] = circles[5].animate(null, 100).move(70, 470);
+			circles[0] = circles[0].animate(100, 0).move(20, 420);
+			circles[1] = circles[1].animate(100, 0).move(20, 420);
+			circles[2] = circles[2].animate(100, 0).move(20, 420);
+			circles[3] = circles[3].animate(100, 0).move(70, 470);
+			circles[4] = circles[4].animate(100, 0).move(70, 470);
+			circles[5] = circles[5].animate(100, 0).move(70, 470);
 		};
 
 		let animate_dice_3 = () => {
-			circles[0] = circles[0].animate(null, 100).move(45, 445);
-			circles[1] = circles[1].animate(null, 100).move(45, 445);
-			circles[2] = circles[2].animate(null, 100).move(20, 420);
-			circles[3] = circles[3].animate(null, 100).move(70, 470);
-			circles[4] = circles[4].animate(null, 100).move(45, 445);
-			circles[5] = circles[5].animate(null, 100).move(45, 445);
+			circles[0] = circles[0].animate(100, 0).move(45, 445);
+			circles[1] = circles[1].animate(100, 0).move(45, 445);
+			circles[2] = circles[2].animate(100, 0).move(20, 420);
+			circles[3] = circles[3].animate(100, 0).move(70, 470);
+			circles[4] = circles[4].animate(100, 0).move(45, 445);
+			circles[5] = circles[5].animate(100, 0).move(45, 445);
 		};
 
 		let animate_dice_4 = () => {
-			circles[0] = circles[0].animate(null, 100).move(70, 420);
-			circles[1] = circles[1].animate(null, 100).move(70, 420);
-			circles[2] = circles[2].animate(null, 100).move(20, 420);
-			circles[3] = circles[3].animate(null, 100).move(70, 470);
-			circles[4] = circles[4].animate(null, 100).move(20, 470);
-			circles[5] = circles[5].animate(null, 100).move(20, 470);
+			circles[0] = circles[0].animate(100, 0).move(70, 420);
+			circles[1] = circles[1].animate(100, 0).move(70, 420);
+			circles[2] = circles[2].animate(100, 0).move(20, 420);
+			circles[3] = circles[3].animate(100, 0).move(70, 470);
+			circles[4] = circles[4].animate(100, 0).move(20, 470);
+			circles[5] = circles[5].animate(100, 0).move(20, 470);
 		};
 
 		let animate_dice_5 = () => {
-			circles[0] = circles[0].animate(null, 100).move(45, 445);
-			circles[1] = circles[1].animate(null, 100).move(70, 420);
-			circles[2] = circles[2].animate(null, 100).move(20, 420);
-			circles[3] = circles[3].animate(null, 100).move(70, 470);
-			circles[4] = circles[4].animate(null, 100).move(20, 470);
-			circles[5] = circles[5].animate(null, 100).move(45, 445);
+			circles[0] = circles[0].animate(100, 0).move(45, 445);
+			circles[1] = circles[1].animate(100, 0).move(70, 420);
+			circles[2] = circles[2].animate(100, 0).move(20, 420);
+			circles[3] = circles[3].animate(100, 0).move(70, 470);
+			circles[4] = circles[4].animate(100, 0).move(20, 470);
+			circles[5] = circles[5].animate(100, 0).move(45, 445);
 		};
 
 		let animate_dice_6 = () => {
-			circles[0] = circles[0].animate(null, 100).move(20, 445);
-			circles[1] = circles[1].animate(null, 100).move(70, 420);
-			circles[2] = circles[2].animate(null, 100).move(20, 420);
-			circles[3] = circles[3].animate(null, 100).move(70, 470);
-			circles[4] = circles[4].animate(null, 100).move(20, 470);
-			circles[5] = circles[5].animate(null, 100).move(70, 445);
+			circles[0] = circles[0].animate(100, 0).move(20, 445);
+			circles[1] = circles[1].animate(100, 0).move(70, 420);
+			circles[2] = circles[2].animate(100, 0).move(20, 420);
+			circles[3] = circles[3].animate(100, 0).move(70, 470);
+			circles[4] = circles[4].animate(100, 0).move(20, 470);
+			circles[5] = circles[5].animate(100, 0).move(70, 445);
 		};
 
 		let animate_dice_x = [animate_dice_1, animate_dice_2, animate_dice_3, animate_dice_4, animate_dice_5, animate_dice_6];
-		for (let x = 0; x < 10; x++) {
+		for (let x = 0; x < 5; x++) {
 			let i = Math.floor(Math.random() * animate_dice_x.length);
 			animate_dice_x[i]();
 		}
@@ -101,7 +101,7 @@ export class Player {
 		circles.forEach(circle => {
 			group.add(circle.element());
 		});
-		group.animate({ duration: 1000, delay: 1000 }).transform({ originX: 100, originY: 100, scale: 0.5, translateX: translate_x, translateY: translate_y });
+		group.animate({ duration: 1000, delay: 1500 }).transform({ originX: 100, originY: 100, scale: 0.5, translateX: translate_x, translateY: translate_y });
 		
 	}
 
