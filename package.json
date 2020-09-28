@@ -3,7 +3,7 @@
   "version": "0.1",
   "license": "MIT",
   "scripts": {
-    "build": "tsc && python tail.py public/main.js public/main.min.js",
+    "build": "tsc && python tail.py public/Game.js public/Game.min.js",
     "bundle": "tsc-bundle"
   },
   "devDependencies": {
