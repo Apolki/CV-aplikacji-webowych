@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc && python tail.py public/Game.js public/Game.min.js",
-    "bundle": "tsc-bundle"
+    "server": "python server.py"
   },
   "devDependencies": {
     "typescript": "3.0.1",
